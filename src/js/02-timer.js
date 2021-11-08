@@ -22,7 +22,7 @@ const options = {
     currentDate = selectedDates[0];
 
     if (currentDate.getTime() < new Date().getTime()) {
-      Notify.failure('Ця дата вже пройшла');
+      Notify.failure('Ця дата вже пройшла!');
       startBtnEl.setAttribute('disabled', true);
       return;
     }
