@@ -3,16 +3,15 @@ import 'flatpickr/dist/flatpickr.min.css';
 import { Notify } from 'notiflix/build/notiflix-notify-aio';
 import 'notiflix/dist/notiflix-3.1.0.min.css';
 
-const startBtnEL = document.querySelector('button[data-start');
-const daysEl = document.querySelector('button[data-days');
-const hoursEl = document.querySelector('button[data-hours');
-const minutesEl = document.querySelector('button[data-minutes');
-const secondsEl = document.querySelector('button[data-seconds');
-const inputRef = document.querySelector('#datetime-picker');
+const startBtnEl = document.querySelector('[data-start]');
+const daysEl = document.querySelector('[data-days]');
+const hoursEl = document.querySelector('[data-hours]');
+const minutesEl = document.querySelector('[data-minutes]');
+const secondsEl = document.querySelector('[data-seconds]');
 
-startBtnEL.setAttribute('disabled', true);
-startBtnEL.addEventListener('click', startBtnClick);
 let currentDate = null;
+
+startBtnEl.setAttribute('disabled', true);
 
 const options = {
   enableTime: true,
@@ -22,31 +21,32 @@ const options = {
   onClose(selectedDates) {
     currentDate = selectedDates[0];
 
-    if (currentDate > new Date()) {
-      startBtnEL.removeAttribute('disabled');
-    } else {
+    if (currentDate.getTime() < new Date().getTime()) {
       Notify.failure('Ця дата вже пройшла');
-      startBtnEL.setAttribute('disabled', true);
-    }
-  },
-};
-flatpickr(inputRef, options);
-
-function startBtnClick() {
-  setInterval(() => {
-    if (currentDate <= options.defaultDate) {
+      startBtnEl.setAttribute('disabled', true);
       return;
     }
+    startBtnEl.removeAttribute('disabled');
+  },
+};
+flatpickr('#datetime-picker', options);
 
-    const time = convertMs(currentDate - options.defaultDate);
+startBtnEl.addEventListener('click', onStartBtnClick);
 
-    secondsEl.textContent = addLeadingZero(time.seconds);
-    minutesEl.textContent = addLeadingZero(time.minutes);
-    hoursEl.textContent = addLeadingZero(time.hours);
-    daysEl.textContent = addLeadingZero(time.days);
+function onStartBtnClick() {
+  setInterval(() => {
+    if (currentDate <= Date.now()) {
+      return;
+    }
+    const time = convertMs(currentDate - new Date().getTime());
+    daysEl.innerHTML = addLeadingZero(time.days);
+    hoursEl.innerHTML = addLeadingZero(time.hours);
+    minutesEl.innerHTML = addLeadingZero(time.minutes);
+    secondsEl.innerHTML = addLeadingZero(time.seconds);
   }, 1000);
+  startBtnEl.setAttribute('disabled', true);
 }
-console.log(currentDate);
+
 function convertMs(ms) {
   // Number of milliseconds per unit of time
   const second = 1000;
@@ -65,6 +65,7 @@ function convertMs(ms) {
 
   return { days, hours, minutes, seconds };
 }
+
 function addLeadingZero(value) {
-  return String(value).padStart(2, '0');
+  return String(value).padStart(2, 0);
 }
